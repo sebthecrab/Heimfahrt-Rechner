@@ -96,6 +96,13 @@
     .btn-outline-light:hover {
       background: #1a2233;
     }
+    /* Consent-Box */
+    .consent-box {
+      background: #0f1420;
+      border: 1px solid #1f2a3a;
+      border-radius: .75rem;
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -233,9 +240,23 @@
             </div>
           </div>
 
-          <p class="foot-note mt-3 mb-0">
+          <p class="foot-note mt-3 mb-3">
             2.3: Die Fahrzeit aus (1) wird vollständig von der <em>geplanten</em> Gesamtarbeitszeit abgezogen. Bei gemeinsamer Fahrt („Zu zweit“) wird nur die halbe Fahrzeit angerechnet.
           </p>
+
+          <!-- Consent: Cookies speichern -->
+          <div class="consent-box">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="cookieConsent">
+              <label class="form-check-label" for="cookieConsent">
+                Cookies erlauben (Eingaben speichern)
+              </label>
+            </div>
+            <p class="muted mb-0 mt-2">
+              Wenn aktiviert, speichert diese Seite deine Formularwerte für max. 180 Tage in Funktions-Cookies (<code>SameSite=Lax</code>, keine Drittanbieter-/Tracking-Cookies).
+              Du kannst die Speicherung jederzeit über das Häkchen wieder deaktivieren.
+            </p>
+          </div>
         </section>
       </div>
     </div>
@@ -247,6 +268,70 @@
           crossorigin="anonymous"></script>
 
   <script>
+    // -------------------------------
+    // Cookie-Helfer
+    // -------------------------------
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/; SameSite=Lax";
+    }
+    function getCookie(name) {
+      const match = document.cookie.split("; ").find(row => row.startsWith(name + "="));
+      return match ? decodeURIComponent(match.split("=")[1]) : null;
+    }
+    function deleteCookie(name) {
+      document.cookie = name + "=; Max-Age=0; path=/; SameSite=Lax";
+    }
+
+    const CONSENT_COOKIE = "arbeitsendeConsent";
+    const PREFS_COOKIE   = "arbeitsendePrefs";
+    const COOKIE_TTL_DAYS = 180;
+
+    function hasConsent() {
+      return getCookie(CONSENT_COOKIE) === "1";
+    }
+    function setConsent(allowed) {
+      setCookie(CONSENT_COOKIE, allowed ? "1" : "0", COOKIE_TTL_DAYS);
+      if (!allowed) {
+        deleteCookie(PREFS_COOKIE);
+      }
+    }
+
+    function savePrefs() {
+      if (!hasConsent()) return;
+      const prefs = {
+        homeDeparture: document.getElementById("homeDeparture").value || "",
+        arrivalWork:   document.getElementById("arrivalWork").value   || "",
+        driverMode:    document.getElementById("driverMode").value    || "solo",
+        workStart:     document.getElementById("workStart").value     || "",
+        plannedWork:   document.getElementById("plannedWork").value   || "8"
+      };
+      try {
+        setCookie(PREFS_COOKIE, JSON.stringify(prefs), COOKIE_TTL_DAYS);
+      } catch (e) {
+        // Fallback: wenn JSON oder Größe fehlschlägt, Cookie leeren
+        deleteCookie(PREFS_COOKIE);
+      }
+    }
+
+    function loadPrefs() {
+      const raw = getCookie(PREFS_COOKIE);
+      if (!raw) return;
+      try {
+        const prefs = JSON.parse(raw);
+        if (prefs && typeof prefs === "object") {
+          if (prefs.homeDeparture) document.getElementById("homeDeparture").value = prefs.homeDeparture;
+          if (prefs.arrivalWork)   document.getElementById("arrivalWork").value   = prefs.arrivalWork;
+          if (prefs.driverMode)    document.getElementById("driverMode").value    = prefs.driverMode;
+          if (prefs.workStart)     document.getElementById("workStart").value     = prefs.workStart;
+          if (prefs.plannedWork)   document.getElementById("plannedWork").value   = prefs.plannedWork;
+        }
+      } catch (e) {
+        // Ungültiger Inhalt → Cookie löschen
+        deleteCookie(PREFS_COOKIE);
+      }
+    }
+
     // -------------------------------
     // Hilfsfunktionen für Zeit & Dauer
     // -------------------------------
@@ -391,6 +476,8 @@
             <span class="muted">Eingaben unvollständig</span>
             <span class="badge text-bg-secondary">–</span>
           </li>`;
+        // Bei Änderungen trotzdem evtl. speichern (z.B. unvollständig), damit beim Reload die bisherigen Eingaben da sind
+        savePrefs();
         return;
       }
 
@@ -399,6 +486,7 @@
       if (driveMinutes == null) {
         setError(homeDepartureEl, "Ungültige Zeit.");
         setError(arrivalWorkEl, "Ungültige Zeit.");
+        savePrefs();
         return;
       }
 
@@ -409,7 +497,6 @@
       const { total: breakMinutes, details } = getBreakDetails(plannedHrs);
 
       // 2.3) Netto-Arbeitszeit im Betrieb = geplante Stunden − angerechnete Fahrzeit
-      //      (Fahrzeit in Stunden umrechnen)
       const plannedTotalMin = plannedHrs * 60;
       const netWorkAtSite = plannedTotalMin - creditedDrive;
 
@@ -420,6 +507,7 @@
       const workStartMin = parseHHMMToMinutes(workStart);
       if (workStartMin == null) {
         setError(workStartEl, "Ungültige Zeit.");
+        savePrefs();
         return;
       }
       const endMinutesAbs = workStartMin + netClamped + breakMinutes;
@@ -445,18 +533,24 @@
           </li>
         `).join("");
       }
+
+      // Nach erfolgreicher Berechnung/Änderung speichern (falls erlaubt)
+      savePrefs();
     }
 
     // -------------------------------
     // Event-Listener
     // -------------------------------
     document.getElementById("btnCalculate").addEventListener("click", calculate);
-    // Live-Berechnung bei Änderungen
+
+    // Live-Berechnung bei Änderungen + Speichern
     ["homeDeparture","arrivalWork","driverMode","workStart","plannedWork"].forEach(id => {
-      document.getElementById(id).addEventListener("change", calculate);
-      document.getElementById(id).addEventListener("input", calculate);
+      const el = document.getElementById(id);
+      el.addEventListener("change", calculate);
+      el.addEventListener("input", calculate);
     });
 
+    // Reset-Button
     document.getElementById("btnReset").addEventListener("click", () => {
       // kleine Verzögerung, damit die Felder wirklich geleert sind
       setTimeout(() => {
@@ -475,11 +569,36 @@
             <span class="muted">Noch keine Auswahl</span>
             <span class="badge text-bg-secondary">–</span>
           </li>`;
+
+        // Nach Reset ggf. auch speichern (leere Werte), falls Consent aktiv
+        savePrefs();
       }, 0);
     });
 
-    // Initiale Berechnung (falls Browser Defaultwerte setzt)
+    // Consent-Checkbox Verhalten
+    const consentEl = document.getElementById("cookieConsent");
+    consentEl.addEventListener("change", () => {
+      const allowed = consentEl.checked;
+      setConsent(allowed);
+      if (allowed) {
+        // Sofort aktuelle Werte sichern
+        savePrefs();
+      } else {
+        // Cookies gelöscht → nichts weiter zu tun
+      }
+    });
+
+    // Initiale Wiederherstellung & Berechnung
     window.addEventListener("DOMContentLoaded", () => {
+      // Consent-Status aus Cookie in Checkbox spiegeln
+      consentEl.checked = hasConsent();
+
+      // Falls erlaubt, Prefs laden
+      if (hasConsent()) {
+        loadPrefs();
+      }
+
+      // Initial berechnen (falls Browser Defaultwerte setzt oder Prefs geladen wurden)
       calculate();
     });
   </script>
