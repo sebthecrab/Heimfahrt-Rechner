@@ -212,7 +212,7 @@
               <div class="result-kpi">
                 <div class="kpi-label">Fahrdauer (brutto)</div>
                 <div class="kpi-value" id="driveDuration">–</div>
-                <div class="muted">Aus Ankunft − Abfahrt (ggf. über Mitternacht).</div>
+                <div class="muted">Aus Ankunft − Abfahrt.</div>
               </div>
             </div>
             <div class="col-md-4">
