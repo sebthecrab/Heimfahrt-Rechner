@@ -172,9 +172,9 @@
                   <option value="11">11:00 h</option>
                   <option value="12">12:00 h</option>
                 </select>
-                <div class="form-text text-muted muted">
+                <!-- <div class="form-text text-muted muted">
                   Pausenregel (DE): bis 6:00 h → 0 Min, &gt;6:00–9:00 h → 30 Min, &gt;9:00 h → 45 Min.
-                </div>
+                </div>-->
               </div>
 
               <!-- NEU: Pausen-Basis (Fahrzeit einbeziehen?) -->
@@ -184,9 +184,6 @@
                   <option value="no" selected>Nein – Pause nur ab Arbeitsbeginn (Fahrzeit NICHT mitzählen)</option>
                   <option value="yes">Ja – Fahrzeit als Arbeitszeit mitzählen (Pausenpflicht kann höher sein)</option>
                 </select>
-                <div class="form-text text-muted muted">
-                  Steuert, ob die gesetzliche Pausenpflicht auf Grundlage der gesamten geplanten Arbeitszeit (inkl. Fahrzeit) oder nur der Zeit ab Arbeitsbeginn ermittelt wird.
-                </div>
               </div>
             </div>
           </div>
