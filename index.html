@@ -159,6 +159,11 @@
               <div class="col-md-8">
                 <label for="plannedWork" class="form-label">2.2 Geplante Gesamtarbeitszeit</label>
                 <select id="plannedWork" class="form-select">
+                  <option value="1">1:00 h</option>
+                  <option value="2">2:00 h</option>
+                  <option value="3">3:00 h</option>
+                  <option value="4">4:00 h</option>
+                  <option value="5">5:00 h</option>
                   <option value="6">6:00 h</option>
                   <option value="7">7:00 h</option>
                   <option value="8" selected>8:00 h</option>
@@ -265,7 +270,7 @@
               </label>
             </div>
             <p class="muted mb-0 mt-2">
-              Wenn aktiviert, speichert diese Seite deine Formularwerte für max. 180 Tage in Funktions-Cookies (<code>SameSite=Lax</code>, keine Drittanbieter-/Tracking-Cookies).
+              Wenn aktiviert, speichert diese Seite deine Formularwerte für max. 180 Tage in Funktions-Cookies (keine Drittanbieter-/Tracking-Cookies).
               Du kannst die Speicherung jederzeit über das Häkchen wieder deaktivieren.
             </p>
           </div>
