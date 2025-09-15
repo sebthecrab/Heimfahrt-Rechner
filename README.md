@@ -192,9 +192,9 @@
 
           <!-- Aktionen -->
           <div class="d-flex gap-2 flex-wrap">
-            <button type="button" id="btnCalculate" class="btn btn-primary">
+            <!--<button type="button" id="btnCalculate" class="btn btn-primary">
               Berechnen
-            </button>
+            </button>-->
             <button type="reset" id="btnReset" class="btn btn-outline-light">
               Zurücksetzen
             </button>
