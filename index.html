@@ -171,6 +171,18 @@
                   Pausenregel (DE): bis 6:00 h → 0 Min, &gt;6:00–9:00 h → 30 Min, &gt;9:00 h → 45 Min.
                 </div>
               </div>
+
+              <!-- NEU: Pausen-Basis (Fahrzeit einbeziehen?) -->
+              <div class="col-12">
+                <label for="breakTravelMode" class="form-label">2.3 Fahrzeit in Pausenberechnung berücksichtigen?</label>
+                <select id="breakTravelMode" class="form-select">
+                  <option value="no" selected>Nein – Pause nur ab Arbeitsbeginn (Fahrzeit NICHT mitzählen)</option>
+                  <option value="yes">Ja – Fahrzeit als Arbeitszeit mitzählen (Pausenpflicht kann höher sein)</option>
+                </select>
+                <div class="form-text text-muted muted">
+                  Steuert, ob die gesetzliche Pausenpflicht auf Grundlage der gesamten geplanten Arbeitszeit (inkl. Fahrzeit) oder nur der Zeit ab Arbeitsbeginn ermittelt wird.
+                </div>
+              </div>
             </div>
           </div>
 
@@ -212,7 +224,7 @@
               <div class="result-kpi">
                 <div class="kpi-label">Pausen gesamt</div>
                 <div class="kpi-value" id="breakTotal">–</div>
-                <div class="muted">Gemäß geplanter Gesamtarbeitszeit.</div>
+                <div class="muted">Gemäß geplanter Gesamtarbeitszeit bzw. Einstellung 2.3.</div>
               </div>
             </div>
           </div>
@@ -241,7 +253,7 @@
           </div>
 
           <p class="foot-note mt-3 mb-3">
-            2.3: Die Fahrzeit aus (1) wird vollständig von der <em>geplanten</em> Gesamtarbeitszeit abgezogen. Bei gemeinsamer Fahrt („Zu zweit“) wird nur die halbe Fahrzeit angerechnet.
+            2.3: Die Pausenpflicht kann wahlweise mit oder ohne Fahrzeit ermittelt werden. Die Fahrzeit wird weiterhin vollständig von der <em>geplanten</em> Gesamtarbeitszeit abgezogen (bei „Zu zweit“ halbiert), um die Nettozeit im Betrieb zu bestimmen.
           </p>
 
           <!-- Consent: Cookies speichern -->
@@ -304,7 +316,8 @@
         arrivalWork:   document.getElementById("arrivalWork").value   || "",
         driverMode:    document.getElementById("driverMode").value    || "solo",
         workStart:     document.getElementById("workStart").value     || "",
-        plannedWork:   document.getElementById("plannedWork").value   || "8"
+        plannedWork:   document.getElementById("plannedWork").value   || "8",
+        breakTravelMode: document.getElementById("breakTravelMode").value || "no"
       };
       try {
         setCookie(PREFS_COOKIE, JSON.stringify(prefs), COOKIE_TTL_DAYS);
@@ -325,6 +338,7 @@
           if (prefs.driverMode)    document.getElementById("driverMode").value    = prefs.driverMode;
           if (prefs.workStart)     document.getElementById("workStart").value     = prefs.workStart;
           if (prefs.plannedWork)   document.getElementById("plannedWork").value   = prefs.plannedWork;
+          if (prefs.breakTravelMode) document.getElementById("breakTravelMode").value = prefs.breakTravelMode;
         }
       } catch (e) {
         // Ungültiger Inhalt → Cookie löschen
@@ -444,6 +458,7 @@
       const driverModeEl    = document.getElementById("driverMode");
       const workStartEl     = document.getElementById("workStart");
       const plannedWorkEl   = document.getElementById("plannedWork");
+      const breakTravelModeEl = document.getElementById("breakTravelMode");
 
       // Ergebnis-Elemente
       const driveDurationEl = document.getElementById("driveDuration");
@@ -460,6 +475,7 @@
       const workStart     = workStartEl.value;
       const plannedHrs    = Number(plannedWorkEl.value);
       const driverMode    = driverModeEl.value;
+      const breakTravelMode = breakTravelModeEl.value; // "yes" | "no"
 
       if (!homeDeparture) { setError(homeDepartureEl, "Bitte Abfahrtszeit eingeben."); valid = false; } else { clearError(homeDepartureEl); }
       if (!arrivalWork)   { setError(arrivalWorkEl,   "Bitte Ankunftszeit eingeben.");  valid = false; } else { clearError(arrivalWorkEl); }
@@ -493,15 +509,19 @@
       // 1.2) Fahrzeit angerechnet (ggf. halbiert)
       const creditedDrive = driverMode === "shared" ? driveMinutes / 2 : driveMinutes;
 
-      // 2) Pausen gem. geplanter Arbeitszeit
-      const { total: breakMinutes, details } = getBreakDetails(plannedHrs);
-
-      // 2.3) Netto-Arbeitszeit im Betrieb = geplante Stunden − angerechnete Fahrzeit
+      // 2) Netto-Arbeitszeit im Betrieb = geplante Stunden − angerechnete Fahrzeit
       const plannedTotalMin = plannedHrs * 60;
       const netWorkAtSite = plannedTotalMin - creditedDrive;
-
-      // Falls negative Nettozeit (z. B. sehr lange Fahrt + kurze geplante Zeit), bei 0 deckeln
       const netClamped = Math.max(0, netWorkAtSite);
+
+      // 3) Pausenpflicht-BASIS nach Einstellung 2.3
+      //    - "yes"  → Basis = geplante Gesamtarbeitszeit (inkl. Fahrzeit)
+      //    - "no"   → Basis = geplante Gesamtarbeitszeit minus angerechnete Fahrzeit (ab Arbeitsbeginn)
+      const breakBasisMin = Math.max(0, breakTravelMode === "yes" ? plannedTotalMin : plannedTotalMin - creditedDrive);
+      const breakBasisHours = breakBasisMin / 60;
+
+      // 4) Pausen gem. Basis-Stunden
+      const { total: breakMinutes, details } = getBreakDetails(breakBasisHours);
 
       // Endzeit = Arbeitsbeginn + Nettozeit + Pausen
       const workStartMin = parseHHMMToMinutes(workStart);
@@ -519,14 +539,25 @@
       workEndEl.textContent       = formatMinutesToHHMM(endMinutesAbs);
 
       // Pausen-Detailsliste
+      const basisLabel = breakTravelMode === "yes"
+        ? "Basis für Pausen (inkl. Fahrzeit)"
+        : "Basis für Pausen (ab Arbeitsbeginn)";
+
+      const basisItem = `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span class="muted">${basisLabel}</span>
+          <span class="badge text-bg-secondary">${formatDuration(breakBasisMin).replace(" h","")}</span>
+        </li>`;
+
       if (details.length === 0) {
         breakDetailsEl.innerHTML = `
+          ${basisItem}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span class="muted">Keine Pause erforderlich</span>
+            <span>Keine Pause erforderlich</span>
             <span class="badge text-bg-secondary">0 Min</span>
           </li>`;
       } else {
-        breakDetailsEl.innerHTML = details.map(d => `
+        breakDetailsEl.innerHTML = basisItem + details.map(d => `
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>${d.label}</span>
             <span class="badge text-bg-secondary">${d.minutes} Min</span>
@@ -544,7 +575,7 @@
     document.getElementById("btnCalculate").addEventListener("click", calculate);
 
     // Live-Berechnung bei Änderungen + Speichern
-    ["homeDeparture","arrivalWork","driverMode","workStart","plannedWork"].forEach(id => {
+    ["homeDeparture","arrivalWork","driverMode","workStart","plannedWork","breakTravelMode"].forEach(id => {
       const el = document.getElementById(id);
       el.addEventListener("change", calculate);
       el.addEventListener("input", calculate);
@@ -555,7 +586,7 @@
       // kleine Verzögerung, damit die Felder wirklich geleert sind
       setTimeout(() => {
         // Gültigkeitsklassen entfernen
-        ["homeDeparture","arrivalWork","driverMode","workStart","plannedWork"].forEach(id => {
+        ["homeDeparture","arrivalWork","driverMode","workStart","plannedWork","breakTravelMode"].forEach(id => {
           const el = document.getElementById(id);
           el.classList.remove("is-valid","is-invalid");
         });
