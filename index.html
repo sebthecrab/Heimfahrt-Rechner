@@ -1,3 +1,12 @@
+<!-- 
+============================================================
+Copyright © 2025 Sebastian Holländer
+Alle Rechte vorbehalten.
+
+Kontakt: Sebastian.j.hollaender@gmail.com
+============================================================
+-->
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
