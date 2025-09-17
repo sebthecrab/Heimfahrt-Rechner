@@ -10,268 +10,267 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
   <style>
-    :root {
-      --card-max-width: 980px;
+    :root{
+      --card-max-width: 1100px;
     }
-    body {
-      background: #0b0c10;
-      color: #eaf0f1;
-    }
-    .page-wrap {
-      padding: 2rem 1rem 4rem;
-    }
-    .app-card {
-      background: #111318;
-      border: 1px solid #232733;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-      border-radius: 1rem;
+
+    /* ===== Helles Grundlayout – angelehnt an "AB HIER" ===== */
+    body { background-color: var(--bs-light); }
+
+    .page-wrap { padding: 2rem 1rem 4rem; }
+    .container-max {
       max-width: var(--card-max-width);
-      margin: 0 auto;
+      margin-inline: auto;
     }
+
+    .brand { font-weight: 700; letter-spacing: .2px; color: var(--bs-emphasis-color); }
+
+    /* Karte im hellen Stil */
+    .app-card {
+      background: #fff;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 1rem;
+      box-shadow: 0 .25rem .75rem rgba(0,0,0,.05);
+    }
+
     .form-section-title {
       font-weight: 600;
-      color: #9ecbff;
+      color: var(--bs-emphasis-color);
       letter-spacing: .2px;
       margin-bottom: .25rem;
     }
-    .subtle {
-      color: #aab3c2;
-      font-size: .925rem;
-    }
+
+    .subtle, .muted, .foot-note { color: var(--bs-secondary-color); }
+    .foot-note { font-size: .9rem; }
+
+    /* KPIs in hell */
     .result-kpi {
-      background: #0f1420;
-      border: 1px solid #1f2a3a;
+      background: #fff;
+      border: 1px solid var(--bs-border-color);
       border-radius: .75rem;
       padding: 1rem;
       height: 100%;
     }
     .kpi-label {
       font-size: .875rem;
-      color: #b7c3d5;
+      color: var(--bs-secondary-color);
       margin-bottom: .25rem;
     }
     .kpi-value {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--bs-emphasis-color);
     }
+
+    /* Dezente Divider wie im Report-Design */
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, #2a3447, transparent);
+      background: var(--bs-border-color);
+      opacity: .65;
       margin: 1rem 0 1.25rem;
     }
-    .invalid-feedback {
-      display: block; /* Sofort unter dem Feld sichtbar, wenn Fehlertext gesetzt wird */
-    }
+
+    /* Validierung: Bootstrap-Default, aber klar sichtbar */
+    .invalid-feedback { display: block; }
+
+    /* Listengruppe im hellen Stil */
     .list-checks .list-group-item {
-      background: transparent;
-      color: #eaf0f1;
-      border-color: #263044;
+      background: #fff;
+      color: var(--bs-body-color);
+      border-color: var(--bs-border-color);
     }
     .list-checks .badge {
-      background: #22314a;
-      border: 1px solid #2e4368;
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      color: var(--bs-body-color);
     }
-    .muted {
-      color: #98a3b6;
-    }
-    .foot-note {
-      font-size: .85rem;
-      color: #8ea0b8;
-    }
-    .brand {
-      font-weight: 700;
-      letter-spacing: .3px;
-      color: #ffffff;
-    }
-    a, a:hover { color: #9ecbff; }
-    .btn-primary {
-      background: #2c66f5;
-      border-color: #2c66f5;
-    }
-    .btn-outline-light {
-      color: #eaf0f1;
-      border-color: #445168;
-    }
-    .btn-outline-light:hover {
-      background: #1a2233;
-    }
-    /* Consent-Box */
+
+    /* Links & Buttons auf Bootstrap-Standard belassen (helles Theme) */
+    a, a:hover { color: var(--bs-primary); }
+
+    /* Consent-Box: neutrales Panel wie Hinweisbox im Report */
     .consent-box {
-      background: #0f1420;
-      border: 1px solid #1f2a3a;
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
       border-radius: .75rem;
       padding: 1rem;
     }
+
+    /* Responsives Tuning für Abstände */
+    @media (min-width: 992px){
+      .app-card { padding: 2.25rem !important; }
+    }
   </style>
 </head>
-<body>
+<body class="bg-light">
   <div class="page-wrap">
-    <div class="container">
-      <header class="mb-4 text-center">
-        <h1 class="brand">Arbeitsende-Rechner</h1>
-        <p class="subtle mb-0">Berechnet deine Abfahrtszeit (Arbeitsende) basierend auf Fahrzeit, Arbeitsbeginn, geplanter Gesamtarbeitszeit und gesetzlichen Pausen.</p>
-      </header>
+    <div class="container container-max py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
 
-      <div class="app-card p-4 p-md-5">
-        <!-- Formular -->
-        <form id="calcForm" novalidate>
-          <!-- Sektion 1: Fahrt -->
-          <div class="mb-4">
-            <div class="form-section-title">1) An- / Abfahrt</div>
-            <p class="subtle">Gib an, wann du zuhause losgefahren und angekommen bist. Wähle, ob du alleine oder zu zweit gefahren bist.</p>
+          <header class="mb-4 text-center">
+            <h1 class="brand h3 mb-1">Arbeitsende-Rechner</h1>
+            <p class="subtle mb-0">Berechnet deine Abfahrtszeit (Arbeitsende) basierend auf Fahrzeit, Arbeitsbeginn, geplanter Gesamtarbeitszeit und gesetzlichen Pausen.</p>
+          </header>
 
-            <div class="row g-3 align-items-end">
-              <div class="col-md-4">
-                <label for="homeDeparture" class="form-label">1.1 Abfahrt zuhause</label>
-                <input type="time" class="form-control" id="homeDeparture" required step="60" />
-                <div class="invalid-feedback" id="homeDepartureError"></div>
-              </div>
-              <div class="col-md-4">
-                <label for="arrivalWork" class="form-label">1.1 Ankunft am Arbeitsplatz</label>
-                <input type="time" class="form-control" id="arrivalWork" required step="60" />
-                <div class="invalid-feedback" id="arrivalWorkError"></div>
-              </div>
-              <div class="col-md-4">
-                <label for="driverMode" class="form-label">1.2 Fahrmodus</label>
-                <select id="driverMode" class="form-select">
-                  <option value="solo">Alleinfahrer</option>
-                  <option value="shared">Zu zweit (Fahrzeit / 2)</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <div class="app-card p-4 p-md-5">
+            <!-- Formular -->
+            <form id="calcForm" novalidate>
+              <!-- Sektion 1: Fahrt -->
+              <div class="mb-4">
+                <div class="form-section-title">1) An- / Abfahrt</div>
+                <p class="subtle">Gib an, wann du zuhause losgefahren und angekommen bist. Wähle, ob du alleine oder zu zweit gefahren bist.</p>
 
-          <div class="divider"></div>
-
-          <!-- Sektion 2: Arbeit -->
-          <div class="mb-4">
-            <div class="form-section-title">2) Arbeitstag</div>
-            <p class="subtle">Wähle deinen Arbeitsbeginn und die geplante Gesamtarbeitszeit. Pausen nach ArbZG werden automatisch berücksichtigt und angezeigt. Die Fahrzeit aus (1) wird von der Gesamtarbeitszeit abgezogen.</p>
-
-            <!-- FIX: align-items-start statt align-items-end -->
-            <div class="row g-3 align-items-start">
-              <div class="col-md-4">
-                <label for="workStart" class="form-label">2.1 Arbeitsbeginn</label>
-                <input type="time" class="form-control" id="workStart" required step="60" />
-                <div class="invalid-feedback" id="workStartError"></div>
-              </div>
-              <div class="col-md-8">
-                <label for="plannedWork" class="form-label">2.2 Geplante Gesamtarbeitszeit</label>
-                <select id="plannedWork" class="form-select">
-                  <option value="1">1:00 h</option>
-                  <option value="2">2:00 h</option>
-                  <option value="3">3:00 h</option>
-                  <option value="4">4:00 h</option>
-                  <option value="5">5:00 h</option>
-                  <option value="6">6:00 h</option>
-                  <option value="7">7:00 h</option>
-                  <option value="8" selected>8:00 h</option>
-                  <option value="9">9:00 h</option>
-                  <option value="10">10:00 h</option>
-                  <option value="11">11:00 h</option>
-                  <option value="12">12:00 h</option>
-                </select>
-                <!-- <div class="form-text text-muted muted">
-                  Pausenregel (DE): bis 6:00 h → 0 Min, &gt;6:00–9:00 h → 30 Min, &gt;9:00 h → 45 Min.
-                </div>-->
-              </div>
-
-              <!-- NEU: Pausen-Basis (Fahrzeit einbeziehen?) -->
-              <div class="col-12">
-                <label for="breakTravelMode" class="form-label">2.3 Fahrzeit in Pausenberechnung berücksichtigen?</label>
-                <select id="breakTravelMode" class="form-select">
-                  <option value="no" selected>Nein – Pause nur ab Arbeitsbeginn (Fahrzeit NICHT mitzählen)</option>
-                  <option value="yes">Ja – Fahrzeit als Arbeitszeit mitzählen (Pausenpflicht kann höher sein)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Aktionen -->
-          <div class="d-flex gap-2 flex-wrap">
-            <button type="button" id="btnCalculate" class="btn btn-primary">
-              Berechnen
-            </button>
-            <button type="reset" id="btnReset" class="btn btn-outline-light">
-              Zurücksetzen
-            </button>
-          </div>
-        </form>
-
-        <div class="divider"></div>
-
-        <!-- Ergebnisse -->
-        <section aria-live="polite" aria-atomic="true">
-          <h2 class="h5 mb-3">Ergebnisse</h2>
-
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="result-kpi">
-                <div class="kpi-label">Fahrdauer (brutto)</div>
-                <div class="kpi-value" id="driveDuration">–</div>
-                <div class="muted">Aus Ankunft − Abfahrt.</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="result-kpi">
-                <div class="kpi-label">Fahrdauer angerechnet</div>
-                <div class="kpi-value" id="driveCredited">–</div>
-                <div class="muted">Bei „Zu zweit“ halbiert.</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="result-kpi">
-                <div class="kpi-label">Pausen gesamt</div>
-                <div class="kpi-value" id="breakTotal">–</div>
-                <div class="muted">Gemäß geplanter Gesamtarbeitszeit bzw. Einstellung 2.3.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row g-3 mt-1">
-            <div class="col-md-6">
-              <div class="result-kpi h-100">
-                <div class="kpi-label">Abfahrtszeit (Arbeitsende)</div>
-                <div class="kpi-value" id="workEnd">–</div>
-                <div class="muted">
-                  Formel: Arbeitsbeginn + (Gesamtarbeitszeit − angerechnete Fahrzeit) + Pausen.
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-4">
+                    <label for="homeDeparture" class="form-label">1.1 Abfahrt zuhause</label>
+                    <input type="time" class="form-control" id="homeDeparture" required step="60" />
+                    <div class="invalid-feedback" id="homeDepartureError"></div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="arrivalWork" class="form-label">1.1 Ankunft am Arbeitsplatz</label>
+                    <input type="time" class="form-control" id="arrivalWork" required step="60" />
+                    <div class="invalid-feedback" id="arrivalWorkError"></div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="driverMode" class="form-label">1.2 Fahrmodus</label>
+                    <select id="driverMode" class="form-select">
+                      <option value="solo">Alleinfahrer</option>
+                      <option value="shared">Zu zweit (Fahrzeit / 2)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="result-kpi h-100">
-                <div class="kpi-label">Pausen-Details</div>
-                <ul class="list-group list-group-flush list-checks" id="breakDetails">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="muted">Noch keine Auswahl</span>
-                    <span class="badge text-bg-secondary">–</span>
-                  </li>
-                </ul>
+
+              <div class="divider"></div>
+
+              <!-- Sektion 2: Arbeit -->
+              <div class="mb-4">
+                <div class="form-section-title">2) Arbeitstag</div>
+                <p class="subtle">Wähle deinen Arbeitsbeginn und die geplante Gesamtarbeitszeit. Pausen nach ArbZG werden automatisch berücksichtigt und angezeigt. Die Fahrzeit aus (1) wird von der Gesamtarbeitszeit abgezogen.</p>
+
+                <div class="row g-3 align-items-start">
+                  <div class="col-md-4">
+                    <label for="workStart" class="form-label">2.1 Arbeitsbeginn</label>
+                    <input type="time" class="form-control" id="workStart" required step="60" />
+                    <div class="invalid-feedback" id="workStartError"></div>
+                  </div>
+                  <div class="col-md-8">
+                    <label for="plannedWork" class="form-label">2.2 Geplante Gesamtarbeitszeit</label>
+                    <select id="plannedWork" class="form-select">
+                      <option value="1">1:00 h</option>
+                      <option value="2">2:00 h</option>
+                      <option value="3">3:00 h</option>
+                      <option value="4">4:00 h</option>
+                      <option value="5">5:00 h</option>
+                      <option value="6">6:00 h</option>
+                      <option value="7">7:00 h</option>
+                      <option value="8" selected>8:00 h</option>
+                      <option value="9">9:00 h</option>
+                      <option value="10">10:00 h</option>
+                      <option value="11">11:00 h</option>
+                      <option value="12">12:00 h</option>
+                    </select>
+                  </div>
+
+                  <!-- NEU: Pausen-Basis (Fahrzeit einbeziehen?) -->
+                  <div class="col-12">
+                    <label for="breakTravelMode" class="form-label">2.3 Fahrzeit in Pausenberechnung berücksichtigen?</label>
+                    <select id="breakTravelMode" class="form-select">
+                      <option value="no" selected>Nein – Pause nur ab Arbeitsbeginn (Fahrzeit NICHT mitzählen)</option>
+                      <option value="yes">Ja – Fahrzeit als Arbeitszeit mitzählen (Pausenpflicht kann höher sein)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div class="divider"></div>
+
+              <!-- Aktionen -->
+              <div class="d-grid gap-2 gap-sm-2 d-sm-flex flex-wrap">
+                <button type="button" id="btnCalculate" class="btn btn-primary w-100 w-sm-auto">
+                  Berechnen
+                </button>
+                <button type="reset" id="btnReset" class="btn btn-outline-secondary w-100 w-sm-auto">
+                  Zurücksetzen
+                </button>
+              </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <!-- Ergebnisse -->
+            <section aria-live="polite" aria-atomic="true">
+              <h2 class="h5 mb-3">Ergebnisse</h2>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="result-kpi">
+                    <div class="kpi-label">Fahrdauer (brutto)</div>
+                    <div class="kpi-value" id="driveDuration">–</div>
+                    <div class="muted">Aus Ankunft − Abfahrt.</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-kpi">
+                    <div class="kpi-label">Fahrdauer angerechnet</div>
+                    <div class="kpi-value" id="driveCredited">–</div>
+                    <div class="muted">Bei „Zu zweit“ halbiert.</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="result-kpi">
+                    <div class="kpi-label">Pausen gesamt</div>
+                    <div class="kpi-value" id="breakTotal">–</div>
+                    <div class="muted">Gemäß geplanter Gesamtarbeitszeit bzw. Einstellung 2.3.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                  <div class="result-kpi h-100">
+                    <div class="kpi-label">Abfahrtszeit (Arbeitsende)</div>
+                    <div class="kpi-value" id="workEnd">–</div>
+                    <div class="muted">
+                      Formel: Arbeitsbeginn + (Gesamtarbeitszeit − angerechnete Fahrzeit) + Pausen.
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="result-kpi h-100">
+                    <div class="kpi-label">Pausen-Details</div>
+                    <ul class="list-group list-group-flush list-checks" id="breakDetails">
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="muted">Noch keine Auswahl</span>
+                        <span class="badge rounded-pill">–</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <p class="foot-note mt-3 mb-0">
+                2.3: Die Pausenpflicht kann wahlweise mit oder ohne Fahrzeit ermittelt werden. Die Fahrzeit wird weiterhin vollständig von der <em>geplanten</em> Gesamtarbeitszeit abgezogen (bei „Zu zweit“ halbiert), um die Nettozeit im Betrieb zu bestimmen.
+              </p>
+
+              <!-- Consent: Cookies speichern -->
+              <div class="consent-box mt-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="cookieConsent">
+                  <label class="form-check-label" for="cookieConsent">
+                    Cookies erlauben (Eingaben speichern)
+                  </label>
+                </div>
+                <p class="muted mb-0 mt-2">
+                  Wenn aktiviert, speichert diese Seite deine Formularwerte für max. 180 Tage in Funktions-Cookies (keine Drittanbieter-/Tracking-Cookies).
+                  Du kannst die Speicherung jederzeit über das Häkchen wieder deaktivieren.
+                </p>
+              </div>
+            </section>
           </div>
 
-          <p class="foot-note mt-3 mb-3">
-            2.3: Die Pausenpflicht kann wahlweise mit oder ohne Fahrzeit ermittelt werden. Die Fahrzeit wird weiterhin vollständig von der <em>geplanten</em> Gesamtarbeitszeit abgezogen (bei „Zu zweit“ halbiert), um die Nettozeit im Betrieb zu bestimmen.
-          </p>
-
-          <!-- Consent: Cookies speichern -->
-          <div class="consent-box">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="cookieConsent">
-              <label class="form-check-label" for="cookieConsent">
-                Cookies erlauben (Eingaben speichern)
-              </label>
-            </div>
-            <p class="muted mb-0 mt-2">
-              Wenn aktiviert, speichert diese Seite deine Formularwerte für max. 180 Tage in Funktions-Cookies (keine Drittanbieter-/Tracking-Cookies).
-              Du kannst die Speicherung jederzeit über das Häkchen wieder deaktivieren.
-            </p>
-          </div>
-        </section>
+        </div>
       </div>
     </div>
   </div>
@@ -492,7 +491,7 @@
         breakDetailsEl.innerHTML = `
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span class="muted">Eingaben unvollständig</span>
-            <span class="badge text-bg-secondary">–</span>
+            <span class="badge rounded-pill">–</span>
           </li>`;
         // Bei Änderungen trotzdem evtl. speichern (z.B. unvollständig), damit beim Reload die bisherigen Eingaben da sind
         savePrefs();
@@ -548,7 +547,7 @@
       const basisItem = `
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span class="muted">${basisLabel}</span>
-          <span class="badge text-bg-secondary">${formatDuration(breakBasisMin).replace(" h","")}</span>
+          <span class="badge rounded-pill">${formatDuration(breakBasisMin).replace(" h","")}</span>
         </li>`;
 
       if (details.length === 0) {
@@ -556,13 +555,13 @@
           ${basisItem}
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>Keine Pause erforderlich</span>
-            <span class="badge text-bg-secondary">0 Min</span>
+            <span class="badge rounded-pill">0 Min</span>
           </li>`;
       } else {
         breakDetailsEl.innerHTML = basisItem + details.map(d => `
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>${d.label}</span>
-            <span class="badge text-bg-secondary">${d.minutes} Min</span>
+            <span class="badge rounded-pill">${d.minutes} Min</span>
           </li>
         `).join("");
       }
@@ -600,7 +599,7 @@
         document.getElementById("breakDetails").innerHTML = `
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span class="muted">Noch keine Auswahl</span>
-            <span class="badge text-bg-secondary">–</span>
+            <span class="badge rounded-pill">–</span>
           </li>`;
 
         // Nach Reset ggf. auch speichern (leere Werte), falls Consent aktiv
